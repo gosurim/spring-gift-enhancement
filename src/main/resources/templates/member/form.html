@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>회원 관리</title>
+</head>
+<body>
+<div th:with="actionUrl=${isEdit} ? '/admin/members/edit/' + ${memberId} : '/admin/members'">
+  <form th:action="@{__${actionUrl}__}" th:object="${member}" method="post">
+
+    <label>이메일</label>
+    <input type="text" th:field="*{email}"/>
+    <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color:red"></div>
+
+    <div th:if="!${isEdit}">
+      <label>비밀번호</label>
+      <input type="text" th:field="*{password}"/>
+      <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" style="color:red"></div>
+    </div>
+
+    <button type="submit" th:text="${isEdit} ? '수정' : '등록'">버튼</button>
+  </form>
+</div>
+</body>
+</html>
