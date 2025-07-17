@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -19,6 +20,7 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
+    @Transactional
     public ProductResponseDto save(ProductRequestDto requestDto) {
         Product product = requestDto.toEntity();
         Product savedProduct = productRepository.save(product);
@@ -26,31 +28,40 @@ public class ProductService {
         return ProductResponseDto.from(savedProduct);
     }
 
+    @Transactional(readOnly = true)
     public List<ProductResponseDto> findAll() {
         return productRepository.findAll().stream()
                 .map(ProductResponseDto::from)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public ProductResponseDto findById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        return new ProductResponseDto(product);
+        return ProductResponseDto.from(product);
     }
 
+    @Transactional(readOnly = true)
+    public Product findEntityById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    @Transactional
     public ProductResponseDto update(Long id, String name, Integer price, String url) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         product.update(name, price, url);
-        productRepository.update(product);
 
         return ProductResponseDto.from(product);
     }
 
+    @Transactional
     public void delete(Long id) {
         productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        productRepository.delete(id);
+        productRepository.deleteById(id);
     }
 }
