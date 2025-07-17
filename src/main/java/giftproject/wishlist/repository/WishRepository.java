@@ -1,6 +1,7 @@
 package giftproject.wishlist.repository;
 
 import giftproject.wishlist.entity.Wish;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -16,6 +17,9 @@ public interface WishRepository extends JpaRepository<Wish, Long> {
     List<Wish> findByMemberId(Long memberId);
 
     Page<Wish> findByMemberId(Long memberId, Pageable pageable);
+
+    Page<Wish> findByMemberIdAndCreationDateAfter(Long memberId, LocalDateTime thresholdDate,
+            Pageable pageable);
 
     Optional<Wish> findByMemberIdAndProductId(Long memberId, Long productId);
 

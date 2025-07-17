@@ -8,6 +8,7 @@ import giftproject.wishlist.dto.WishRequestDto;
 import giftproject.wishlist.dto.WishResponseDto;
 import giftproject.wishlist.entity.Wish;
 import giftproject.wishlist.repository.WishRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -59,7 +60,9 @@ public class WishService {
 
     @Transactional(readOnly = true)
     public Page<WishResponseDto> findAllPage(Long memberId, Pageable pageable) {
-        Page<Wish> wishPage = wishRepository.findByMemberId(memberId, pageable);
+        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+        Page<Wish> wishPage = wishRepository.findByMemberIdAndCreationDateAfter(memberId,
+                thirtyDaysAgo, pageable);
         return wishPage.map(WishResponseDto::from);
     }
 
