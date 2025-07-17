@@ -1,1 +1,7 @@
-# spring-gift-enhancement
+# 상품 고도화
+
+## 1. 엔티티 매핑
+
+- 엔티티 클래스 정의 및 기본 매핑
+- repository 인터페이스 정의
+- 객체 연관관계 매핑
