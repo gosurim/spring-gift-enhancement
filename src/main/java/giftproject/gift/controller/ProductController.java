@@ -4,12 +4,12 @@ import giftproject.gift.dto.ProductRequestDto;
 import giftproject.gift.dto.ProductResponseDto;
 import giftproject.gift.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,10 +33,6 @@ public class ProductController {
     }
 
     @Operation(summary = "새로운 상품 등록", description = "상품명, 가격, 이미지 URL을 받아 새로운 상품을 등록합니다.")
-    @ApiResponse(responseCode = "201", description = "상품 등록 성공",
-            content = @Content(schema = @Schema(implementation = ProductResponseDto.class)))
-    @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터",
-            content = @Content(schema = @Schema(example = "{\"message\": \"상품명은 필수입니다.\"}")))
     @PostMapping
     public ResponseEntity<ProductResponseDto> createProduct(
             @Valid @RequestBody ProductRequestDto requestDto) {
@@ -44,8 +40,12 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<ProductResponseDto> findAll() {
-        return productService.findAll();
+    public ResponseEntity<Page<ProductResponseDto>> findAll(
+            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        Page<ProductResponseDto> productPage = productService.findAllPage(pageable);
+        return ResponseEntity.ok(productPage);
     }
 
     @GetMapping("/{id}")
