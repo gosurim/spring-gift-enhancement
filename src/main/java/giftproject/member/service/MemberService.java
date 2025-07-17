@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -26,6 +27,7 @@ public class MemberService {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
+    @Transactional
     public String register(MemberRequestDto requestDto) {
         String encodedPassword = passwordEncoder.encode(requestDto.password());
 
@@ -35,6 +37,7 @@ public class MemberService {
         return jwtTokenProvider.generateToken(savedMember.getId(), savedMember.getEmail());
     }
 
+    @Transactional(readOnly = true)
     public String login(MemberRequestDto requestDto) {
         Member member = memberRepository.findByEmail(requestDto.email())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
@@ -48,12 +51,14 @@ public class MemberService {
         return jwtTokenProvider.generateToken(member.getId(), member.getEmail());
     }
 
+    @Transactional(readOnly = true)
     public List<MemberResponseDto> findAll() {
         return memberRepository.findAll().stream()
                 .map(MemberResponseDto::from)
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public MemberResponseDto save(MemberRequestDto requestDto) {
         String encodedPassword = passwordEncoder.encode(requestDto.password());
         Member member = new Member(requestDto.email(), encodedPassword);
@@ -62,30 +67,33 @@ public class MemberService {
         return MemberResponseDto.from(saveMember);
     }
 
+    @Transactional
     public MemberResponseDto update(Long id, String email, String password) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         member.update(email, passwordEncoder.encode(password));
-        memberRepository.update(member);
 
         return MemberResponseDto.from(member);
     }
 
+    @Transactional(readOnly = true)
     public MemberResponseDto findById(Long id) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         return MemberResponseDto.from(member);
     }
 
+    @Transactional(readOnly = true)
     public Member findEntityById(Long id) {
         return memberRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
+    @Transactional
     public void delete(Long id) {
         memberRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        memberRepository.delete(id);
+        memberRepository.deleteById(id);
     }
 }
