@@ -2,16 +2,19 @@ package giftproject.wishlist.dto;
 
 import giftproject.gift.dto.ProductResponseDto;
 import giftproject.wishlist.entity.Wish;
+import java.time.LocalDateTime;
 
 public record WishResponseDto(
         Long id,
         Long memberId,
         ProductResponseDto product,
-        int quantity
+        int quantity,
+        LocalDateTime creationDate
 ) {
 
     public WishResponseDto(Wish wish, ProductResponseDto productResponseDto) {
-        this(wish.getId(), wish.getMember().getId(), productResponseDto, wish.getQuantity());
+        this(wish.getId(), wish.getMember().getId(), productResponseDto, wish.getQuantity(),
+                wish.getCreationDate());
     }
 
     public static WishResponseDto from(Wish wish) {
@@ -29,7 +32,8 @@ public record WishResponseDto(
                 wish.getId(),
                 memberId,
                 productDto,
-                wish.getQuantity()
+                wish.getQuantity(),
+                wish.getCreationDate()
         );
     }
 }

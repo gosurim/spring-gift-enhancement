@@ -4,6 +4,7 @@ import giftproject.gift.entity.Product;
 import giftproject.member.entity.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,11 +13,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.time.LocalDateTime;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "wishes", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"member_id", "product_id"})
 })
+@EntityListeners(AuditingEntityListener.class)
 public class Wish {
 
     @Id
@@ -33,6 +38,10 @@ public class Wish {
 
     @Column(nullable = false)
     private int quantity;
+
+    @CreatedDate
+    @Column(updatable = false)
+    private LocalDateTime creationDate;
 
     public Wish() {
     }
@@ -70,6 +79,10 @@ public class Wish {
         return member;
     }
 
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
     public void setProduct(Product product) {
         this.product = product;
     }
@@ -92,6 +105,7 @@ public class Wish {
                 ", memberId=" + (member != null ? member.getId() : "null") +
                 ", productId=" + (product != null ? product.getId() : "null") +
                 ", quantity=" + quantity +
+                ", creationDate=" + creationDate +
                 '}';
     }
 }

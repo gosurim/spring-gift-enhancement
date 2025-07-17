@@ -41,7 +41,7 @@ public class WishController {
 
     @GetMapping
     public ResponseEntity<Page<WishResponseDto>> findWishListByMember(
-            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC)
+            @PageableDefault(page = 0, size = 10, sort = "creationDate", direction = Sort.Direction.DESC)
             Pageable pageable,
             @LoginMember Member member
     ) {
