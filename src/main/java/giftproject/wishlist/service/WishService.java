@@ -83,4 +83,12 @@ public class WishService {
 
         wishRepository.deleteByMemberIdAndProductId(memberId, productId);
     }
+
+    @Transactional
+    public int deleteExpiredWishesManually() {
+        LocalDateTime thrityDaysAge = LocalDateTime.now().minusDays(30);
+        int deletedCount = wishRepository.deleteByCreationDateBefore(thrityDaysAge);
+        System.out.println("만료된 위시 리스트" + deletedCount + "개가 삭제되었습니다.");
+        return deletedCount;
+    }
 }
