@@ -1,14 +1,41 @@
 package giftproject.gift.entity;
 
+import giftproject.wishlist.entity.Wish;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+@Entity
+@Table(name = "products")
 public class Product {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private Integer price;
+
+    @Column(name = "image_url")
     private String imageUrl;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Wish> wishes = new ArrayList<>();
+
+    public Product() {
+    }
 
     public Product(Long id, String name, Integer price, String imageUrl) {
         validateName(name);
@@ -45,6 +72,10 @@ public class Product {
         return imageUrl;
     }
 
+    public List<Wish> getWishes() {
+        return wishes;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -66,5 +97,28 @@ public class Product {
         this.name = name;
         this.price = price;
         this.imageUrl = url;
+    }
+
+    public void addWish(Wish wish) {
+        this.wishes.add(wish);
+        if (wish.getProduct() != this) {
+            wish.setProduct(this);
+        }
+    }
+
+    public void removeWish(Wish wish) {
+        this.wishes.remove(wish);
+        if (wish.getProduct() == this) {
+            wish.setProduct(null);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                '}';
     }
 }
