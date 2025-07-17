@@ -15,10 +15,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @SpringBootTest
+@Transactional
 class ProductServiceTest {
 
     @Autowired
@@ -27,16 +28,13 @@ class ProductServiceTest {
     @Autowired
     private ProductRepository productRepository;
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
     @BeforeEach
     void setUp() {
-        jdbcTemplate.execute("TRUNCATE TABLE products");
+        productRepository.deleteAll();
     }
 
     @Test
-    @DisplayName("카카오 포함")
+    @DisplayName("상품명에 '카카오' 포함 시 예외 발생 및 DB에 저장되지 않음")
     void saveProduct_Kakao() {
         ProductRequestDto requestDto = new ProductRequestDto("카카오", 12000,
                 "http://img.com/img.jpg");
@@ -50,10 +48,11 @@ class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("정상 상품 등록")
+    @DisplayName("정상적인 상품 등록 시 DB에 성공적으로 저장되고 응답 DTO 반환")
     void saveProduct_success() {
         ProductRequestDto requestDto = new ProductRequestDto("초코케이크", 10000,
                 "http://img.com/cake.jpg");
+
         ProductResponseDto result = productService.save(requestDto);
 
         assertAll(
@@ -66,5 +65,6 @@ class ProductServiceTest {
         Optional<Product> savedInDb = productRepository.findById(result.id());
         assertThat(savedInDb).isPresent();
         assertThat(savedInDb.get().getName()).isEqualTo("초코케이크");
+        assertThat(savedInDb.get().getPrice()).isEqualTo(10000);
     }
 }
