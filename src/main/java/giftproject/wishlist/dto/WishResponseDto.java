@@ -11,6 +11,25 @@ public record WishResponseDto(
 ) {
 
     public WishResponseDto(Wish wish, ProductResponseDto productResponseDto) {
-        this(wish.getId(), wish.getMemberId(), productResponseDto, wish.getQuantity());
+        this(wish.getId(), wish.getMember().getId(), productResponseDto, wish.getQuantity());
+    }
+
+    public static WishResponseDto from(Wish wish) {
+        ProductResponseDto productDto = null;
+        if (wish.getProduct() != null) {
+            productDto = ProductResponseDto.from(wish.getProduct());
+        }
+
+        Long memberId = null;
+        if (wish.getMember() != null) {
+            memberId = wish.getMember().getId();
+        }
+
+        return new WishResponseDto(
+                wish.getId(),
+                memberId,
+                productDto,
+                wish.getQuantity()
+        );
     }
 }
