@@ -43,7 +43,7 @@ public class Wish {
     @Column(updatable = false)
     private LocalDateTime creationDate;
 
-    public Wish() {
+    protected Wish() {
     }
 
     public Wish(Member member, Product product, int quantity) {

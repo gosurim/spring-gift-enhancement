@@ -29,7 +29,7 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Wish> wishes = new ArrayList<>();
 
-    public Member() {
+    protected Member() {
     }
 
     public Member(Long id, String email, String password) {

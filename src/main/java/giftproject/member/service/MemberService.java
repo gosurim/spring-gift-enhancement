@@ -73,6 +73,7 @@ public class MemberService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         member.update(email, passwordEncoder.encode(password));
+        memberRepository.save(member);
 
         return MemberResponseDto.from(member);
     }

@@ -62,6 +62,7 @@ public class ProductService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         product.update(name, price, url);
+        productRepository.save(product);
 
         return ProductResponseDto.from(product);
     }
