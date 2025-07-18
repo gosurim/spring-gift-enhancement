@@ -1,10 +1,38 @@
 package giftproject.member.entity;
 
+import giftproject.gift.entity.Product;
+import giftproject.wishlist.entity.Wish;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+@Entity
+@Table(name = "members")
 public class Member {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(nullable = false)
     private String password;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Wish> wishes = new ArrayList<>();
+
+    protected Member() {
+    }
 
     public Member(Long id, String email, String password) {
         this.id = id;
@@ -28,20 +56,59 @@ public class Member {
         return password;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public List<Wish> getWishes() {
+        return wishes;
     }
 
-    public void setEmail(String email) {
+    public void update(String email, String password) {
         this.email = email;
-    }
-
-    public void setPassword(String password) {
         this.password = password;
     }
 
-    public void update(String email, String encode) {
-        this.email = email;
-        this.password = encode;
+    public void addWish(Wish wish) {
+        this.wishes.add(wish);
+        if (wish.getMember() != this) {
+            wish.setMember(this);
+        }
+    }
+
+    public void removeWish(Wish wish) {
+        this.wishes.remove(wish);
+        if (wish.getMember() == this) {
+            wish.setMember(null);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Member{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                '}';
+    }
+
+    public Wish addOrUpdateWish(Product product, int maxWishlistProductCount) {
+        Optional<Wish> existingWishOptional = wishes.stream()
+                .filter(wish -> wish.getProduct().getId().equals(product.getId()))
+                .findFirst();
+
+        if (existingWishOptional.isPresent()) {
+            Wish existingWish = existingWishOptional.get();
+            existingWish.incrementQuantity();
+            return existingWish;
+        } else {
+            long distinctProductCount = this.wishes.stream()
+                    .map(Wish::getProduct)
+                    .distinct()
+                    .count();
+            if (distinctProductCount >= maxWishlistProductCount) {
+                throw new IllegalArgumentException(
+                        "상품을 최대 " + maxWishlistProductCount + "종까지 담을 수 있어요.");
+            }
+        }
+
+        Wish newWish = new Wish(this, product, 1);
+        this.addWish(newWish);
+        return newWish;
     }
 }

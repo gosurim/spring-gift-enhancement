@@ -1,21 +1,55 @@
 package giftproject.wishlist.entity;
 
+import giftproject.gift.entity.Product;
+import giftproject.member.entity.Member;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import java.time.LocalDateTime;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+@Entity
+@Table(name = "wishes", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"member_id", "product_id"})
+})
+@EntityListeners(AuditingEntityListener.class)
 public class Wish {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long memberId;
-    private Long productId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
+
+    @Column(nullable = false)
     private int quantity;
 
-    public Wish(Long id, Long memberId, Long productId, int quantity) {
-        this.id = id;
-        this.memberId = memberId;
-        this.productId = productId;
-        this.quantity = quantity;
+    @CreatedDate
+    @Column(updatable = false)
+    private LocalDateTime creationDate;
+
+    protected Wish() {
     }
 
-    public Wish(Long memberId, Long aLong, int updatedQuantity) {
-        this(null, memberId, aLong, updatedQuantity);
+    public Wish(Member member, Product product, int quantity) {
+        this.quantity = quantity;
+        this.member = member;
+        this.product = product;
     }
 
     public Long getId() {
@@ -26,31 +60,49 @@ public class Wish {
         this.id = id;
     }
 
-    public Long getMemberId() {
-        return memberId;
-    }
-
-    public void setMemberId(Long memberId) {
-        this.memberId = memberId;
-    }
-
-    public Long getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Long productId) {
-        this.productId = productId;
-    }
-
     public int getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public Product getProduct() {
+        return product;
+    }
+
+    public Member getMember() {
+        return member;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public void setMember(Member member) {
+        this.member = member;
     }
 
     public void updateQuantity(int newQuantity) {
+        if (newQuantity < 1) {
+            throw new IllegalArgumentException("Quantity must be at least 1.");
+        }
         this.quantity = newQuantity;
+    }
+
+    @Override
+    public String toString() {
+        return "Wish{" +
+                "id=" + id +
+                ", memberId=" + (member != null ? member.getId() : "null") +
+                ", productId=" + (product != null ? product.getId() : "null") +
+                ", quantity=" + quantity +
+                ", creationDate=" + creationDate +
+                '}';
+    }
+
+    public void incrementQuantity() {
+        this.quantity += 1;
     }
 }

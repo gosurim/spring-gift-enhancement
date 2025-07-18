@@ -6,7 +6,10 @@ import giftproject.wishlist.dto.WishRequestDto;
 import giftproject.wishlist.dto.WishResponseDto;
 import giftproject.wishlist.service.WishService;
 import jakarta.validation.Valid;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,9 +40,13 @@ public class WishController {
     }
 
     @GetMapping
-    public ResponseEntity<List<WishResponseDto>> find(@LoginMember Member member) {
-        List<WishResponseDto> wishList = wishService.find(member.getId());
-        return new ResponseEntity<>(wishList, HttpStatus.OK);
+    public ResponseEntity<Page<WishResponseDto>> findWishListByMember(
+            @PageableDefault(page = 0, size = 10, sort = "creationDate", direction = Sort.Direction.DESC)
+            Pageable pageable,
+            @LoginMember Member member
+    ) {
+        Page<WishResponseDto> wishPage = wishService.findRecent(member.getId(), pageable);
+        return ResponseEntity.ok(wishPage);
     }
 
     @DeleteMapping("/{productId}")

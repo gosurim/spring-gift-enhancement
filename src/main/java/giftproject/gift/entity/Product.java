@@ -1,14 +1,39 @@
 package giftproject.gift.entity;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import giftproject.wishlist.entity.Wish;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 
+@Entity
+@Table(name = "products")
 public class Product {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private Integer price;
+
+    @Column(name = "image_url")
     private String imageUrl;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Wish> wishes = new ArrayList<>();
+
+    protected Product() {
+    }
 
     public Product(Long id, String name, Integer price, String imageUrl) {
         validateName(name);
@@ -24,8 +49,7 @@ public class Product {
 
     private void validateName(String name) {
         if (name.contains("카카오")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "\"카카오\"가 포함된 문구는 담당 MD와 협의한 경우에만 사용 가능합니다.");
+            throw new IllegalArgumentException("\"카카오\"가 포함된 문구는 담당 MD와 협의한 경우에만 사용 가능합니다.");
         }
     }
 
@@ -45,20 +69,8 @@ public class Product {
         return imageUrl;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setPrice(Integer price) {
-        this.price = price;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public List<Wish> getWishes() {
+        return wishes;
     }
 
     public void update(String name, Integer price, String url) {
@@ -66,5 +78,28 @@ public class Product {
         this.name = name;
         this.price = price;
         this.imageUrl = url;
+    }
+
+    public void addWish(Wish wish) {
+        this.wishes.add(wish);
+        if (wish.getProduct() != this) {
+            wish.setProduct(this);
+        }
+    }
+
+    public void removeWish(Wish wish) {
+        this.wishes.remove(wish);
+        if (wish.getProduct() == this) {
+            wish.setProduct(null);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                '}';
     }
 }

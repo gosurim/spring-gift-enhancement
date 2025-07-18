@@ -5,9 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 import giftproject.gift.dto.ProductRequestDto;
 import giftproject.gift.dto.ProductResponseDto;
+import giftproject.gift.entity.Product;
+import giftproject.gift.repository.ProductRepository;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,26 +19,25 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class ProductControllerTest {
+@Transactional
+public class ProductControllerTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private ProductRepository productRepository;
 
     @BeforeEach
     void setUp() {
-        jdbcTemplate.execute("TRUNCATE TABLE products");
+        productRepository.deleteAll();
     }
 
-
     @Test
-    @DisplayName("정상 생성")
-    void createProduct_success() {
+    void 정상_생성() {
         ProductRequestDto requestDto = new ProductRequestDto("초코케이크", 10000,
                 "http://img.com/image.jpg");
 
@@ -48,11 +49,19 @@ class ProductControllerTest {
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED),
                 () -> assertThat(response.getBody().name()).isEqualTo("초코케이크")
         );
+
+        List<Product> productsInDb = productRepository.findAll();
+        assertAll(
+                () -> assertThat(productsInDb).hasSize(1),
+                () -> assertThat(productsInDb.get(0).getName()).isEqualTo("초코케이크"),
+                () -> assertThat(productsInDb.get(0).getPrice()).isEqualTo(10000),
+                () -> assertThat(productsInDb.get(0).getImageUrl()).isEqualTo(
+                        "http://img.com/image.jpg")
+        );
     }
 
     @Test
-    @DisplayName("상품명 15자 초과")
-    void createProduct_nameTooLong() {
+    void 상품명_15자_초과() {
         ProductRequestDto requestDto = new ProductRequestDto("상품명 15자 초과상품명 15자 초과", 10000,
                 "http://img.com/image.jpg");
 
@@ -69,11 +78,12 @@ class ProductControllerTest {
                 () -> assertThat(response.getBody().get("name")).isEqualTo(
                         "상품명은 최대 15자까지 입력 가능합니다.")
         );
+
+        assertThat(productRepository.findAll().isEmpty());
     }
 
     @Test
-    @DisplayName("특수 문자 포함")
-    void createProduct_invalidCharacters() {
+    void 특수_문자_포함() {
         ProductRequestDto requestDto = new ProductRequestDto("@", 10000,
                 "http://img.com/image.jpg");
 
@@ -93,8 +103,7 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("카카오 포함")
-    void createProduct_nameContainsKakao() {
+    void 카카오_포함() {
         ProductRequestDto requestDto = new ProductRequestDto("카카오", 10000,
                 "http://img.com/image.jpg");
 
@@ -112,4 +121,5 @@ class ProductControllerTest {
                         "\"카카오\"가 포함된 문구는 담당 MD와 협의한 경우에만 사용 가능합니다.")
         );
     }
+
 }
