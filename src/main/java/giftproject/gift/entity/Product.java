@@ -11,8 +11,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 @Entity
 @Table(name = "products")
@@ -51,8 +49,7 @@ public class Product {
 
     private void validateName(String name) {
         if (name.contains("카카오")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "\"카카오\"가 포함된 문구는 담당 MD와 협의한 경우에만 사용 가능합니다.");
+            throw new IllegalArgumentException("\"카카오\"가 포함된 문구는 담당 MD와 협의한 경우에만 사용 가능합니다.");
         }
     }
 
