@@ -1,5 +1,6 @@
 package giftproject.member.entity;
 
+import giftproject.gift.entity.Product;
 import giftproject.wishlist.entity.Wish;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -11,6 +12,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Table(name = "members")
@@ -79,9 +81,34 @@ public class Member {
 
     @Override
     public String toString() {
-        return "Product{" +
+        return "Member{" +
                 "id=" + id +
                 ", email='" + email + '\'' +
                 '}';
+    }
+
+    public Wish addOrUpdateWish(Product product, int maxWishlistProductCount) {
+        Optional<Wish> existingWishOptional = wishes.stream()
+                .filter(wish -> wish.getProduct().getId().equals(product.getId()))
+                .findFirst();
+
+        if (existingWishOptional.isPresent()) {
+            Wish existingWish = existingWishOptional.get();
+            existingWish.incrementQuantity();
+            return existingWish;
+        } else {
+            long distinctProductCount = this.wishes.stream()
+                    .map(Wish::getProduct)
+                    .distinct()
+                    .count();
+            if (distinctProductCount >= maxWishlistProductCount) {
+                throw new IllegalArgumentException(
+                        "상품을 최대 " + maxWishlistProductCount + "종까지 담을 수 있어요.");
+            }
+        }
+
+        Wish newWish = new Wish(this, product, 1);
+        this.addWish(newWish);
+        return newWish;
     }
 }

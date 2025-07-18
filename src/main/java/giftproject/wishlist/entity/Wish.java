@@ -50,13 +50,6 @@ public class Wish {
         this.quantity = quantity;
         this.member = member;
         this.product = product;
-
-        if (member != null) {
-            member.addWish(this);
-        }
-        if (product != null) {
-            product.addWish(this);
-        }
     }
 
     public Long getId() {
@@ -91,8 +84,8 @@ public class Wish {
         this.member = member;
     }
 
-    public void updateQuantity(Integer newQuantity) {
-        if (newQuantity == null || newQuantity < 1) {
+    public void updateQuantity(int newQuantity) {
+        if (newQuantity < 1) {
             throw new IllegalArgumentException("Quantity must be at least 1.");
         }
         this.quantity = newQuantity;
@@ -107,5 +100,9 @@ public class Wish {
                 ", quantity=" + quantity +
                 ", creationDate=" + creationDate +
                 '}';
+    }
+
+    public void incrementQuantity() {
+        this.quantity += 1;
     }
 }
