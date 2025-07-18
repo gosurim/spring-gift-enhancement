@@ -77,8 +77,8 @@ class ProductControllerMockTest {
         assertThat(isFirst).isTrue();
         assertThat(isLast).isFalse();
 
-        assertThat(products.get(0).getName()).isEqualTo("상품25");
-        assertThat(products.get(9).getName()).isEqualTo("상품16");
+        assertThat(products.get(0).name()).isEqualTo("상품25");
+        assertThat(products.get(9).name()).isEqualTo("상품16");
     }
 
     @DisplayName("페이지네이션을 적용하여 상품 목록을 조회한다 - 특정 페이지 (page=1, size=5)")
@@ -115,7 +115,7 @@ class ProductControllerMockTest {
         assertThat(isFirst).isFalse();
         assertThat(isLast).isFalse();
 
-        assertThat(products.get(0).getName()).isEqualTo("상품20");
-        assertThat(products.get(4).getName()).isEqualTo("상품16");
+        assertThat(products.get(0).name()).isEqualTo("상품20");
+        assertThat(products.get(4).name()).isEqualTo("상품16");
     }
 }

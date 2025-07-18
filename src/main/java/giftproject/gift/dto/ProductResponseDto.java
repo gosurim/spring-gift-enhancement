@@ -25,12 +25,4 @@ public record ProductResponseDto(
         return new ProductResponseDto(product.getId(), product.getName(), product.getPrice(),
                 product.getImageUrl());
     }
-
-    public String getName() {
-        return name;
-    }
-
-    public Integer getPrice() {
-        return price;
-    }
 }
