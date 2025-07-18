@@ -34,17 +34,17 @@ public class ProductController {
 
     @Operation(summary = "새로운 상품 등록", description = "상품명, 가격, 이미지 URL을 받아 새로운 상품을 등록합니다.")
     @PostMapping
-    public ResponseEntity<ProductResponseDto> createProduct(
+    public ResponseEntity<ProductResponseDto> create(
             @Valid @RequestBody ProductRequestDto requestDto) {
         return new ResponseEntity<>(productService.save(requestDto), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<Page<ProductResponseDto>> findAll(
+    public ResponseEntity<Page<ProductResponseDto>> findRecent(
             @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
-        Page<ProductResponseDto> productPage = productService.findAllPage(pageable);
+        Page<ProductResponseDto> productPage = productService.findRecent(pageable);
         return ResponseEntity.ok(productPage);
     }
 

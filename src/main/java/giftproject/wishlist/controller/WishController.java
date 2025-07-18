@@ -45,7 +45,7 @@ public class WishController {
             Pageable pageable,
             @LoginMember Member member
     ) {
-        Page<WishResponseDto> wishPage = wishService.findAllPage(member.getId(), pageable);
+        Page<WishResponseDto> wishPage = wishService.findRecent(member.getId(), pageable);
         return ResponseEntity.ok(wishPage);
     }
 

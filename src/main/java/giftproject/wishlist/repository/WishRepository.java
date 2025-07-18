@@ -24,8 +24,7 @@ public interface WishRepository extends JpaRepository<Wish, Long> {
 
     Optional<Wish> findByMemberIdAndProductId(Long memberId, Long productId);
 
-    @Query("SELECT COUNT(DISTINCT w.product.id) FROM Wish w WHERE w.member.id = :memberId")
-    int countProductsByMemberID(@Param("memberId") Long memberId);
+    int countDistinctProductByMember_Id(@Param("memberId") Long memberId);
 
     void deleteByMemberIdAndProductId(Long memberId, Long productId);
 

@@ -46,7 +46,7 @@ public class WishService {
             existingWish.updateQuantity(existingWish.getQuantity() + 1);
             savedWish = existingWish;
         } else {
-            int distinctProductCount = wishRepository.countProductsByMemberID(memberId);
+            int distinctProductCount = wishRepository.countDistinctProductByMember_Id(memberId);
             if (distinctProductCount >= 30) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "상품을 최대 30종까지 담을 수 있어요.");
             }
@@ -59,7 +59,7 @@ public class WishService {
     }
 
     @Transactional(readOnly = true)
-    public Page<WishResponseDto> findAllPage(Long memberId, Pageable pageable) {
+    public Page<WishResponseDto> findRecent(Long memberId, Pageable pageable) {
         LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
         Page<Wish> wishPage = wishRepository.findByMemberIdAndCreationDateAfter(memberId,
                 thirtyDaysAgo, pageable);
