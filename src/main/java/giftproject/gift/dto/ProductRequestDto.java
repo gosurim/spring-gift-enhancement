@@ -1,12 +1,18 @@
 package giftproject.gift.dto;
 
 import giftproject.gift.entity.Product;
+import giftproject.option.dto.OptionRequestDto;
+import giftproject.option.entity.Option;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Schema(description = "상품 생성 또는 업데이트 요청을 위한 DTO")
 public record ProductRequestDto(
@@ -26,9 +32,26 @@ public record ProductRequestDto(
 
         @Schema(description = "상품 이미지 URL", example = "https://example.com/product_image.jpg", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(message = "이미지는 필수입니다.")
-        String imageUrl) {
+        String imageUrl,
+
+        @Valid
+        @NotEmpty(message = "하나 이상의 옵션이 필요합니다.")
+        List<OptionRequestDto> options
+) {
 
     public Product toEntity() {
-        return new Product(name, price, imageUrl);
+        Product product = new Product(name, price, imageUrl);
+
+        if (this.options != null && !this.options.isEmpty()) {
+            List<Option> optionEntities = this.options.stream()
+                    .map(optionDto -> new Option(
+                            optionDto.optionType(), optionDto.optionValue(), optionDto.quantity()))
+                    .collect(Collectors.toList());
+
+            optionEntities.forEach(product::addOrUpdateOption);
+        }
+        return product;
+
+
     }
 }
