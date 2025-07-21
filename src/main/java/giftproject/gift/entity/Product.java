@@ -1,5 +1,6 @@
 package giftproject.gift.entity;
 
+import giftproject.option.entity.Option;
 import giftproject.wishlist.entity.Wish;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -32,6 +33,9 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Wish> wishes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Option> options = new ArrayList<>();
+
     protected Product() {
     }
 
@@ -57,6 +61,10 @@ public class Product {
         return id;
     }
 
+    public Long setId(Long id) {
+        return id;
+    }
+
     public String getName() {
         return name;
     }
@@ -71,6 +79,10 @@ public class Product {
 
     public List<Wish> getWishes() {
         return wishes;
+    }
+
+    public List<Option> getOptions() {
+        return options;
     }
 
     public void update(String name, Integer price, String url) {
@@ -101,5 +113,10 @@ public class Product {
                 ", name='" + name + '\'' +
                 ", price=" + price +
                 '}';
+    }
+
+    public void addOrUpdateOption(Option option) {
+        this.options.add(option);
+        option.setProduct(this);
     }
 }
