@@ -3,10 +3,14 @@ package giftproject.gift.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import giftproject.gift.dto.ProductAdminRequestDto;
+import giftproject.gift.dto.ProductRequestDto;
 import giftproject.gift.dto.ProductResponseDto;
 import giftproject.gift.entity.Product;
 import giftproject.gift.repository.ProductRepository;
+import giftproject.option.dto.OptionRequestDto;
+import giftproject.option.repository.OptionRepository;
+import giftproject.option.service.OptionService;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,15 +35,28 @@ public class ProductControllerTest {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private OptionService optionService;
+
+    @Autowired
+    private OptionRepository optionRepository;
+
+    private OptionRequestDto createRequestDto;
+    private Long productId = 1L;
+    private List<OptionRequestDto> options = new ArrayList<>();
+
     @BeforeEach
     void setUp() {
         productRepository.deleteAll();
+        optionRepository.deleteAll();
+        createRequestDto = new OptionRequestDto(productId, "Color", "Red", 10);
+        options.add(createRequestDto);
     }
 
     @Test
     void 정상_생성() {
-        ProductAdminRequestDto requestDto = new ProductAdminRequestDto("초코케이크", 10000,
-                "http://img.com/image.jpg");
+        ProductRequestDto requestDto = new ProductRequestDto("초코케이크", 10000,
+                "http://img.com/image.jpg", options);
 
         ResponseEntity<ProductResponseDto> response = restTemplate.postForEntity("/api/products",
                 requestDto,
@@ -62,9 +79,8 @@ public class ProductControllerTest {
 
     @Test
     void 상품명_15자_초과() {
-        ProductAdminRequestDto requestDto = new ProductAdminRequestDto("상품명 15자 초과상품명 15자 초과",
-                10000,
-                "http://img.com/image.jpg");
+        ProductRequestDto requestDto = new ProductRequestDto("상품명 15자 초과상품명 15자 초과", 10000,
+                "http://img.com/image.jpg", options);
 
         ResponseEntity<Map<String, String>> response = restTemplate.exchange(
                 "/api/products",
@@ -85,8 +101,8 @@ public class ProductControllerTest {
 
     @Test
     void 특수_문자_포함() {
-        ProductAdminRequestDto requestDto = new ProductAdminRequestDto("@", 10000,
-                "http://img.com/image.jpg");
+        ProductRequestDto requestDto = new ProductRequestDto("@", 10000,
+                "http://img.com/image.jpg", options);
 
         ResponseEntity<Map<String, String>> response = restTemplate.exchange(
                 "/api/products",
@@ -105,8 +121,8 @@ public class ProductControllerTest {
 
     @Test
     void 카카오_포함() {
-        ProductAdminRequestDto requestDto = new ProductAdminRequestDto("카카오", 10000,
-                "http://img.com/image.jpg");
+        ProductRequestDto requestDto = new ProductRequestDto("카카오", 10000,
+                "http://img.com/image.jpg", options);
 
         ResponseEntity<Map<String, String>> response = restTemplate.exchange(
                 "/api/products",
@@ -118,7 +134,7 @@ public class ProductControllerTest {
 
         assertAll(
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
-                () -> assertThat(response.getBody().get("error")).isEqualTo(
+                () -> assertThat(response.getBody().get("message")).isEqualTo(
                         "\"카카오\"가 포함된 문구는 담당 MD와 협의한 경우에만 사용 가능합니다.")
         );
     }

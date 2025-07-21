@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @SpringBootTest
 @Transactional
@@ -41,7 +40,7 @@ class ProductServiceTest {
                 "http://img.com/img.jpg", new ArrayList<>());
 
         assertThatThrownBy(() -> productService.save(requestDto))
-                .isInstanceOf(ResponseStatusException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("카카오");
 
         List<Product> products = productRepository.findAll();
