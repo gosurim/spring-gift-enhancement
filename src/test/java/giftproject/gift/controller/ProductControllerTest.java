@@ -3,7 +3,7 @@ package giftproject.gift.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import giftproject.gift.dto.ProductRequestDto;
+import giftproject.gift.dto.ProductAdminRequestDto;
 import giftproject.gift.dto.ProductResponseDto;
 import giftproject.gift.entity.Product;
 import giftproject.gift.repository.ProductRepository;
@@ -38,7 +38,7 @@ public class ProductControllerTest {
 
     @Test
     void 정상_생성() {
-        ProductRequestDto requestDto = new ProductRequestDto("초코케이크", 10000,
+        ProductAdminRequestDto requestDto = new ProductAdminRequestDto("초코케이크", 10000,
                 "http://img.com/image.jpg");
 
         ResponseEntity<ProductResponseDto> response = restTemplate.postForEntity("/api/products",
@@ -62,7 +62,8 @@ public class ProductControllerTest {
 
     @Test
     void 상품명_15자_초과() {
-        ProductRequestDto requestDto = new ProductRequestDto("상품명 15자 초과상품명 15자 초과", 10000,
+        ProductAdminRequestDto requestDto = new ProductAdminRequestDto("상품명 15자 초과상품명 15자 초과",
+                10000,
                 "http://img.com/image.jpg");
 
         ResponseEntity<Map<String, String>> response = restTemplate.exchange(
@@ -84,7 +85,7 @@ public class ProductControllerTest {
 
     @Test
     void 특수_문자_포함() {
-        ProductRequestDto requestDto = new ProductRequestDto("@", 10000,
+        ProductAdminRequestDto requestDto = new ProductAdminRequestDto("@", 10000,
                 "http://img.com/image.jpg");
 
         ResponseEntity<Map<String, String>> response = restTemplate.exchange(
@@ -104,7 +105,7 @@ public class ProductControllerTest {
 
     @Test
     void 카카오_포함() {
-        ProductRequestDto requestDto = new ProductRequestDto("카카오", 10000,
+        ProductAdminRequestDto requestDto = new ProductAdminRequestDto("카카오", 10000,
                 "http://img.com/image.jpg");
 
         ResponseEntity<Map<String, String>> response = restTemplate.exchange(

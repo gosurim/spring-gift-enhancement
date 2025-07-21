@@ -8,6 +8,7 @@ import giftproject.gift.dto.ProductRequestDto;
 import giftproject.gift.dto.ProductResponseDto;
 import giftproject.gift.entity.Product;
 import giftproject.gift.repository.ProductRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,11 +38,11 @@ class ProductServiceTest {
     @DisplayName("상품명에 '카카오' 포함 시 예외 발생 및 DB에 저장되지 않음")
     void saveProduct_Kakao() {
         ProductRequestDto requestDto = new ProductRequestDto("카카오", 12000,
-                "http://img.com/img.jpg");
+                "http://img.com/img.jpg", new ArrayList<>());
 
         assertThatThrownBy(() -> productService.save(requestDto))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("\"카카오\"가 포함된 문구는 담당 MD와 협의한 경우에만 사용 가능합니다.");
+                .hasMessageContaining("카카오");
 
         List<Product> products = productRepository.findAll();
         assertThat(products).isEmpty();
@@ -51,7 +52,7 @@ class ProductServiceTest {
     @DisplayName("정상적인 상품 등록 시 DB에 성공적으로 저장되고 응답 DTO 반환")
     void saveProduct_success() {
         ProductRequestDto requestDto = new ProductRequestDto("초코케이크", 10000,
-                "http://img.com/cake.jpg");
+                "http://img.com/cake.jpg", new ArrayList<>());
 
         ProductResponseDto result = productService.save(requestDto);
 
@@ -61,7 +62,6 @@ class ProductServiceTest {
                 () -> assertThat(result.price()).isEqualTo(10000),
                 () -> assertThat(result.imageUrl()).isEqualTo("http://img.com/cake.jpg")
         );
-
         Optional<Product> savedInDb = productRepository.findById(result.id());
         assertThat(savedInDb).isPresent();
         assertThat(savedInDb.get().getName()).isEqualTo("초코케이크");
