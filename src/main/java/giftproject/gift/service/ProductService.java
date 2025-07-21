@@ -1,5 +1,6 @@
 package giftproject.gift.service;
 
+import giftproject.gift.dto.ProductAdminRequestDto;
 import giftproject.gift.dto.ProductRequestDto;
 import giftproject.gift.dto.ProductResponseDto;
 import giftproject.gift.entity.Product;
@@ -24,6 +25,14 @@ public class ProductService {
 
     @Transactional
     public ProductResponseDto save(ProductRequestDto requestDto) {
+        Product product = requestDto.toEntity();
+        Product savedProduct = productRepository.save(product);
+
+        return ProductResponseDto.from(savedProduct);
+    }
+
+    @Transactional
+    public ProductResponseDto saveForAdmin(ProductAdminRequestDto requestDto) {
         Product product = requestDto.toEntity();
         Product savedProduct = productRepository.save(product);
 

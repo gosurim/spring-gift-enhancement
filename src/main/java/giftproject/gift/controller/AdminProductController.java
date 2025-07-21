@@ -1,6 +1,6 @@
 package giftproject.gift.controller;
 
-import giftproject.gift.dto.ProductRequestDto;
+import giftproject.gift.dto.ProductAdminRequestDto;
 import giftproject.gift.dto.ProductResponseDto;
 import giftproject.gift.service.ProductService;
 import jakarta.validation.Valid;
@@ -33,19 +33,19 @@ public class AdminProductController {
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        model.addAttribute("product", new ProductRequestDto("", 0, ""));
+        model.addAttribute("product", new ProductAdminRequestDto("", 0, ""));
         model.addAttribute("isEdit", false);
         return "product/form";
     }
 
     @PostMapping
-    public String createProduct(@Valid @ModelAttribute("product") ProductRequestDto requestDto,
+    public String createProduct(@Valid @ModelAttribute("product") ProductAdminRequestDto requestDto,
             BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("isEdit", false);
             return "product/form";
         }
-        productService.save(requestDto);
+        productService.saveForAdmin(requestDto);
         return "redirect:/admin/products";
     }
 
@@ -53,7 +53,7 @@ public class AdminProductController {
     public String showEditForm(@PathVariable Long id, Model model) {
         ProductResponseDto product = productService.findById(id);
         model.addAttribute("product",
-                new ProductRequestDto(product.name(), product.price(), product.imageUrl()));
+                new ProductAdminRequestDto(product.name(), product.price(), product.imageUrl()));
         model.addAttribute("productId", product.id());
         model.addAttribute("isEdit", true);
         return "product/form";
@@ -61,7 +61,7 @@ public class AdminProductController {
 
     @PostMapping("/edit/{id}")
     public String updateProduct(@PathVariable Long id,
-            @Valid @ModelAttribute("product") ProductRequestDto requestDto,
+            @Valid @ModelAttribute("product") ProductAdminRequestDto requestDto,
             BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("isEdit", true);
