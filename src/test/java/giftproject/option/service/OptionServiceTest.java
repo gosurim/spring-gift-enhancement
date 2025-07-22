@@ -9,6 +9,7 @@ import giftproject.option.dto.OptionRequestDto;
 import giftproject.option.dto.OptionResponseDto;
 import giftproject.option.entity.Option;
 import giftproject.option.repository.OptionRepository;
+import jakarta.persistence.EntityManager;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 @Transactional
 class OptionServiceTest {
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Autowired
     private OptionService optionService;
@@ -76,8 +80,8 @@ class OptionServiceTest {
     @Test
     @DisplayName("옵션 생성 실패 - 중복 옵션")
     void createOption_duplicateOption() {
-        Option existingOption = new Option(product, "Color", "Red", 5);
-        optionRepository.save(existingOption);
+        Option existingOption = new Option(product, "Color", "Red", 10);
+        product.addOption(existingOption);
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
             optionService.create(productId, createRequestDto);
@@ -135,10 +139,20 @@ class OptionServiceTest {
     @Test
     @DisplayName("옵션 삭제 성공")
     void deleteOption_success() {
-        Option optionToDelete = optionRepository.save(new Option(product, "Color", "Red", 10));
-        optionRepository.save(new Option(product, "Color", "Blue", 20));
-
+        Option existingOption = new Option(product, "Color", "Red", 10);
+        product.addOption(existingOption);
+        Option optionToDelete = new Option(product, "Size", "101010", 10);
+        product.addOption(optionToDelete);
+        product = productRepository.save(product);
+        existingOption = product.getOptions().stream()
+                .filter(o -> "Color".equals(o.getOptionType()))
+                .findFirst().orElseThrow();
+        optionToDelete = product.getOptions().stream()
+                .filter(o -> "Size".equals(o.getOptionType()))
+                .findFirst().orElseThrow();
         optionService.delete(optionToDelete.getId(), productId);
+        entityManager.flush();
+        entityManager.clear();
 
         assertThat(optionRepository.findById(optionToDelete.getId())).isNotPresent();
         assertThat(optionRepository.countByProductId(productId)).isEqualTo(1);
