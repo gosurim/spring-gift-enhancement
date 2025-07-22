@@ -23,24 +23,21 @@ public class OptionService {
         this.productRepository = productRepository;
     }
 
-    @Transactional
-    public OptionResponseDto create(Long productId, OptionRequestDto request) {
-        Product product = productRepository.findById(productId)
+    private Product findProductById(Long productId) {
+        return productRepository.findById(productId)
                 .orElseThrow(
                         () -> new NoSuchElementException("ID가 " + productId + "인 상품을 찾을 수 없습니다."));
+    }
 
-        boolean exists = optionRepository.existsByProductIdAndOptionTypeAndOptionValue(
-                productId, request.optionType(), request.optionValue());
-        if (exists) {
-            throw new IllegalArgumentException(
-                    "동일한 상품 내에 옵션 '" + request.optionType() + ": " + request.optionValue()
-                            + "'이(가) 이미 존재합니다.");
-        }
+    @Transactional
+    public OptionResponseDto create(Long productId, OptionRequestDto request) {
+        Product product = findProductById(productId);
 
         Option option = new Option(
                 product, request.optionType(), request.optionValue(), request.quantity()
         );
-        product.addOrUpdateOption(option);
+
+        product.addOption(option);
         Option savedOption = optionRepository.save(option);
 
         return OptionResponseDto.from(savedOption);
@@ -78,15 +75,9 @@ public class OptionService {
 
     @Transactional
     public void delete(Long optionId, Long productId) {
-        Option option = optionRepository.findById(optionId)
-                .orElseThrow(
-                        () -> new NoSuchElementException("ID가 " + optionId + "인 옵션을 찾을 수 없습니다."));
+        Product product = findProductById(productId);
 
-        long existingOptionsCount = optionRepository.countByProductId(productId);
-        if (existingOptionsCount <= 1) {
-            throw new IllegalArgumentException("하나 이상의 옵션이 있어야 하므로 마지막 옵션은 삭제할 수 없습니다.");
-        }
-
-        optionRepository.delete(option);
+        product.removeOption(optionId);
+        productRepository.save(product);
     }
 }

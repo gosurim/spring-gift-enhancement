@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.util.Objects;
 
 @Entity
 @Table(name = "product_option",
@@ -44,6 +45,9 @@ public class Option {
         this.optionType = optionType;
         this.optionValue = optionValue;
         this.quantity = quantity;
+        if (product != null) {
+            this.setProduct(product);
+        }
     }
 
     public Option(String optionType, String optionValue, int quantity) {
@@ -97,5 +101,20 @@ public class Option {
         this.quantity -= amount;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Option other = (Option) o;
+        return id != null && Objects.equals(id, other.id);
+    }
 
+    @Override
+    public int hashCode() {
+        return id != null ? Objects.hash(id) : 0;
+    }
 }

@@ -12,6 +12,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Entity
 @Table(name = "products")
@@ -115,8 +116,30 @@ public class Product {
                 '}';
     }
 
-    public void addOrUpdateOption(Option option) {
+    public void addOption(Option option) {
+        for (Option existingOption : this.options) {
+            if (existingOption.getOptionType().equals(option.getOptionType()) &&
+                    existingOption.getOptionValue().equals(option.getOptionValue())) {
+                throw new IllegalArgumentException(
+                        "동일한 상품 내에 옵션 '" + existingOption.getOptionType() + ": "
+                                + existingOption.getOptionValue()
+                                + "'이(가) 이미 존재합니다.");
+            }
+        }
         this.options.add(option);
         option.setProduct(this);
+    }
+
+    public void removeOption(Long optionId) {
+        if (this.options.size() <= 1) {
+            throw new IllegalArgumentException("하나 이상의 옵션이 있어야 하므로 마지막 옵션은 삭제할 수 없습니다.");
+        }
+        Option optionToRemove = this.options.stream()
+                .filter(option -> option.getId().equals(optionId))
+                .findFirst()
+                .orElseThrow(
+                        () -> new NoSuchElementException("ID가 " + optionId + "인 옵션을 찾을 수 없습니다."));
+        this.options.remove(optionToRemove);
+        optionToRemove.setProduct(null);
     }
 }

@@ -48,7 +48,7 @@ public record ProductRequestDto(
                             optionDto.optionType(), optionDto.optionValue(), optionDto.quantity()))
                     .collect(Collectors.toList());
 
-            optionEntities.forEach(product::addOrUpdateOption);
+            optionEntities.forEach(product::addOption);
         }
         return product;
 
